@@ -1,0 +1,5 @@
+# .gitignore
+pkg/
+buildgem
+buildgem.cmd
+gitlog.txt
