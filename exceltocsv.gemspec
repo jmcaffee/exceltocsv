@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'exceltocsv/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "xmlutils"
+  spec.name          = "exceltocsv"
   spec.version       = ExcelToCsv::VERSION
   spec.authors       = ["Jeff McAffee"]
   spec.email         = ["jeff@ktechsystems.com"]
