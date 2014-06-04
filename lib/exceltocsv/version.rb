@@ -3,7 +3,7 @@
 #
 module ExcelToCsv
 
-  VERSION = "0.2.0" unless constants.include?("VERSION")
+  VERSION = "0.2.1" unless constants.include?("VERSION")
   APPNAME = "ExcelToCsv" unless constants.include?("APPNAME")
   COPYRIGHT = "Copyright (c) 2014, kTech Systems LLC. All rights reserved." unless constants.include?("COPYRIGHT")
 
