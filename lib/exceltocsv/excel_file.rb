@@ -9,22 +9,39 @@
 # Website::   http://ktechsystems.com
 ##############################################################################
 
-require 'win32ole'
+require_relative 'os'
 require 'time'
 require 'csv'
 require 'bigdecimal'
 
 
 module ExcelToCsv
-
 class ExcelFile
 
-  @verbose = false
+  # If FORCE_WIN_OLE is Y or 1, use the actual Excel application.
+  # NOTE: This will only work on a windows OS!
+  unless ENV['FORCE_WIN_OLE'].nil?
+    FORCE_WIN_OLE = 1 if ENV['FORCE_WIN_OLE'] == '1'
+    FORCE_WIN_OLE = 1 if ENV['FORCE_WIN_OLE'].downcase == 'y'
+  end
 
   def initialize()
     @date_RE = Regexp.new(/\d{4,4}\/\d{2,2}\/\d{2,2}/)
     @date_with_dashes_RE = Regexp.new(/\d{4,4}-\d{2,2}-\d{2,2}/)
     @date_with_time_RE = Regexp.new(/\d{2,2}:\d{2,2}:\d{2,2}/)
+  end
+
+  def xl_app
+    return @xl_app unless @xl_app.nil?
+    if OS.windows? and defined?(FORCE_WIN_OLE)
+      require_relative 'win_excel'
+      @xl_app = WinExcel.new
+    else
+      # CrossPlatformExcel is faster (like, by 30x).
+      require_relative 'cross_platform_excel'
+      @xl_app = CrossPlatformExcel.new
+    end
+    @xl_app
   end
 
   def set_flag(flg)
@@ -34,67 +51,64 @@ class ExcelFile
   end
 
   def verbose?()
-    return @verbose
+    @verbose ||= false
   end
 
   # Convert the 1st sheet in an xls(x) file to a csv file.
   def xl_to_csv(infile, outfile)
     filepath = File.expand_path(infile)
-    puts "xl_to_csv: #{infile} => #{outfile}" if @verbose
+    puts "xl_to_csv: #{infile} => #{outfile}" if verbose?
 
     unless File.exists?(filepath)
       puts "Unable to find file."
       puts "  #{filepath}"
       return
     end
-                                            #   Open an Excel file
-    xl = WIN32OLE.new('Excel.Application')
-    xl.DisplayAlerts = false                # Turn off excel alerts.
 
-    wb = xl.Workbooks.Open("#{filepath}", false)
-                                            # 2nd param of false (above) turns off the link update request
-                                            # when an xls file is opened that contains links.
+    #   Open an Excel file
+    xl_app.open_workbook filepath
 
-                                            # Build a list of work sheets to dump to file.
+    # Build a list of work sheets to dump to file.
     sheets_in_file = []
 
     sheet_saved_count = 0
 
-    wb.Worksheets.each do |ws|
-      sheetname = ws.Name
+    xl_app.worksheet_names.each do |sheetname|
       if( sheetname.match(/CQDS/) || sheetname.match(/PLK/) )
         sheets_in_file << sheetname
         puts "Converting sheet #{sheetname}" if verbose?
         sheet_saved_count += 1
       end
-
     end
 
     if (1 > sheet_saved_count)
       puts "*** No sheets labeled 'PLK' or 'CQDS' ***"
       puts "Verify #{infile} is formatted correctly."
-      xl.Quit                                 # Close Excel.
+      # Close Excel
+      xl_app.close_workbook
       return
     end
-                                            # Write sheet data to file.
+
+    # Write sheet data to file.
     File.open(outfile, "w") do |f|
-      data = wb.Worksheets("#{sheets_in_file[0]}").UsedRange.Value
+      data = xl_app.worksheet_data(sheets_in_file[0])
       for row in data
         row_data = []
         for a_cell in row
-          row_data << process_cell_value(a_cell) #<< ","
+          row_data << process_cell_value(a_cell)
         end
-        #row_data[row_data.length - 1] = "\n"
 
         contains_data = false
 
-        for cell in row_data               # Determine if the row contains any data.
+        # Determine if the row contains any data.
+        for cell in row_data
           if(cell.match(/[^,\r\n]+/))
             contains_data = true
           end
         end
 
-        if(true == contains_data)          # Insert an empty line if the row contains no data.
+        # Insert an empty line if the row contains no data.
+        if(true == contains_data)
           f << row_data.join(",")
           f << "\n"
 
@@ -108,14 +122,15 @@ class ExcelFile
           if(true == verbose?)
             puts "\n"
           end
-
         end
-
       end
     end
-    clean_csv(outfile)                 # Strip empty data from end of lines
 
-    xl.Quit                                 # Close Excel.
+    # Strip empty data from end of lines
+    clean_csv(outfile)
+
+    # Close Excel
+    xl_app.close_workbook
   end
 
 
@@ -259,7 +274,5 @@ class ExcelFile
 
     mspath
   end
-
-
 end # class ExcelFile
 end # module ExcelToCsv

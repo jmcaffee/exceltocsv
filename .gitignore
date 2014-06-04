@@ -1,5 +1,6 @@
 # .gitignore
 pkg/
+tmp/
 buildgem
 buildgem.cmd
 gitlog.txt
