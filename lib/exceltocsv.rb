@@ -9,7 +9,6 @@
 
 require 'find'
 require 'logger'
-require 'win32ole'
 
 
 $LOG = Logger.new(STDERR)
