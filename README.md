@@ -2,7 +2,7 @@
 
 ExcelFile is a file converter to convert Excel spreadsheets to CSV files.
 It is specifically designed for the criteria required to generate properly
-formated CSV files for use with GDLC.
+formated CSV files for use with [GDLC](https://github.com/jmcaffee/gdlc).
 
 ## Usage
 
@@ -61,6 +61,6 @@ date of each file within a directory structure.
 
 ## License
 
-Copyright (c) 2013, kTech Systems LLC. All rights reserved.
+See [LICENSE](https://github.com/jmcaffee/exceltocsv/LICENSE).
 Website: [http://ktechsystems.com](http://ktechsystems.com)
 
