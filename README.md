@@ -61,6 +61,6 @@ date of each file within a directory structure.
 
 ## License
 
-See [LICENSE](https://github.com/jmcaffee/exceltocsv/LICENSE).
+See [LICENSE](https://github.com/jmcaffee/exceltocsv/blob/master/LICENSE).
 Website: [http://ktechsystems.com](http://ktechsystems.com)
 
