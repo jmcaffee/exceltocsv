@@ -11,8 +11,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["jeff@ktechsystems.com"]
   spec.description   = %q{ExcelToCsv is a utility library for converting Excel files to CSV format.}
   spec.summary       = %q{Utility for converting Excel files to CSV format}
-  spec.homepage      = ""
-  spec.license       = "Mine"
+  spec.homepage      = "https://github.com/jmcaffee/exceltocsv"
+  spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
@@ -21,8 +21,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
-  if OS.windows?
-    #spec.add_runtime_dependency "win32ole"
-  end
+
   spec.add_runtime_dependency "spreadsheet"
 end
